@@ -8,9 +8,13 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatImageView;
@@ -18,8 +22,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.shreyanshjain.profile_ui.Adapters.Card1Adapter;
@@ -40,7 +47,15 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+
+//    Nav Drawer
+    private Toolbar mToolbar;
+    private DrawerLayout drawerLayout;
+    private ActionBarDrawerToggle toggle;
+    private ImageView nav_image;
+    private TextView nav_text;
+
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
@@ -49,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     AppCompatImageView backImage;
     RoundedImage profileImage;
     AppBarLayout appBar;
-    Toolbar toolbar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,9 +112,21 @@ public class MainActivity extends AppCompatActivity {
         collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolBar);
         //collapsingToolbarLayout.setTitle("Profile UI");
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        //getSupportActionBar().setTitle("My Profile");
+
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setTitle("com.cricket.au");
+
+        drawerLayout = findViewById(R.id.drawer_layout);
+        toggle = new ActionBarDrawerToggle(MainActivity.this,drawerLayout, R.string.open, R.string.close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(MainActivity.this);
+        View headerView = navigationView.getHeaderView(0);
+        nav_text = headerView.findViewById(R.id.nav_text);
+        nav_image = headerView.findViewById(R.id.nav_image);
 
         // Setting the margins of Recycler View while the toolbar is collapsed to remove the empty space in between the toolbar and recycler view
         appBar = findViewById(R.id.appBar);
@@ -208,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
                     case "Right" : collapsingToolbarLayout.setCollapsedTitleGravity();
                 }*/
                 profileImage.setVisibility(View.INVISIBLE);
-                setSupportActionBar(toolbar);
+                setSupportActionBar(mToolbar);
                 CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams)recyclerView.getLayoutParams();
                 layoutParams.setMargins(0,0,0,0);
                 recyclerView.setLayoutParams(layoutParams);
@@ -241,4 +268,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (toggle.onOptionsItemSelected(item)){
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        return false;
+    }
 }
