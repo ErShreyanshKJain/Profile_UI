@@ -4,7 +4,7 @@ android {
     compileSdkVersion 'android-P'
     defaultConfig {
         applicationId "com.example.shreyanshjain.profile_ui"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
