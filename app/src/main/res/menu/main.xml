@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/card1"
+        android:title="Simple List"/>
+
+    <item android:id="@+id/card2"
+        android:title="Only Text" />
+
+    <item android:id="@+id/card3"
+        android:title="Image With Text" />
+
+    <item android:id="@+id/card4"
+        android:title="Text on Image" />
+
+</menu>
