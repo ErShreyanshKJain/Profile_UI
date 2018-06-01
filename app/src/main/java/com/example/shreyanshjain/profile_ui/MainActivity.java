@@ -1,8 +1,13 @@
 package com.example.shreyanshjain.profile_ui;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
@@ -18,15 +23,12 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.example.shreyanshjain.profile_ui.Adapters.Card1Adapter;
-import com.mikepenz.materialdrawer.Drawer;
-import com.mikepenz.materialdrawer.DrawerBuilder;
-import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONStringer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,8 +42,6 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Drawer drawer = null;
-
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private List<Card1Data> card1Data = new ArrayList<>();
@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
     RoundedImage profileImage;
     AppBarLayout appBar;
     Toolbar toolbar;
-    String result;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
                         throw new IOException("Unexpected code: +" + response);
                     } else {
                         String responseBody = response.body().string();
-                        //result = responseBody;
                         Log.i("Response", responseBody);
                         MainActivity.this.runOnUiThread(new Runnable() {
                             @Override
@@ -130,52 +128,6 @@ public class MainActivity extends AppCompatActivity {
 
         //setAdapter(0); // TO set the adapter at the first position by default
 
-        // Building a Navigation Drawer using a library
-        drawer = new DrawerBuilder(this)
-                .withToolbar(toolbar)
-                .withDisplayBelowStatusBar(true)
-                .withActionBarDrawerToggle(true)
-                .withActionBarDrawerToggleAnimated(true)
-                .inflateMenu(R.menu.main)
-                .withCloseOnClick(true)
-                .withSavedInstance(savedInstanceState)
-                .build();
-
-        drawer.setOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-            @Override
-            public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-//                adapter = new Card1Adapter(card1Data, MainActivity.this,position);
-////                    case 3 : Log.d("Option Selected","Image with Text" + position);
-////                        card1Data = new ArrayList<>();
-////                        for (int i = 0; i < 10; i++) {
-////                            Card1Data card = new Card1Data("Heading", "Sub Heading", "Description");
-////                            card1Data.add(card);
-////                        }
-////                        adapter = new Card1Adapter(card1Data, MainActivity.this);
-////                        break;
-//                recyclerView.setAdapter(adapter);
-//                adapter.notifyDataSetChanged();
-                setAdapter(position);
-                onBackPressed();
-                return true;
-            }
-        });
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        //add the values which need to be saved from the drawer to the bundle
-        outState = drawer.saveInstanceState(outState);
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (drawer != null && drawer.isDrawerOpen()) {
-            drawer.closeDrawer();
-        } else {
-            super.onBackPressed();
-        }
     }
 
     public void setAdapter(int position)
@@ -196,10 +148,11 @@ public class MainActivity extends AppCompatActivity {
         return isAvailable;
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void getData(String jsonData) throws JSONException {
 
         //String jsonData = result;
-        backImage = (AppCompatImageView)findViewById(R.id.backImage);
+        //backImage = (AppCompatImageView)findViewById(R.id.backImage);
         profileImage = (RoundedImage)findViewById(R.id.singleCompLogo);
         JSONObject source = new JSONObject(jsonData);
         int code = source.getInt("code");
@@ -207,14 +160,29 @@ public class MainActivity extends AppCompatActivity {
         {// Make "result" a JSON object to fetch all other values from it
             JSONObject result = source.getJSONObject("result");
             String header = result.getString("top_heading");
-            //int top = result.getInt("top_image");
-            int top = 1;
+            int top = result.getInt("top_image");
+            //int top = 0;
             if(top==1) {
                 String bg = result.getString("top_image_bg");
                 //setImage(1,bg);
                 Picasso.with(this)
                         .load(bg)
-                        .into(backImage);
+                        .into(new Target() {
+                            @Override
+                            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                                collapsingToolbarLayout.setBackground(new BitmapDrawable(bitmap));
+                            }
+
+                            @Override
+                            public void onBitmapFailed(Drawable errorDrawable) {
+
+                            }
+
+                            @Override
+                            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                            }
+                        });                        //backImage
                 String fg = result.getString("top_image_fg");
                 //setImage(2,fg);
                 Picasso.with(this)
@@ -224,10 +192,23 @@ public class MainActivity extends AppCompatActivity {
             }
             else{
                 //set collapseToolbar to toolbar or supportActionBar
-                //collapsingToolbarLayout.setVisibility(View.INVISIBLE);
-                //setActionBar(toolbar);
+                /*collapsingToolbarLayout.setVisibility(View.INVISIBLE);
+                CoordinatorLayout.LayoutParams lay = (CoordinatorLayout.LayoutParams)appBar.getLayoutParams();
+                lay.height = 140;
+                appBar.setLayoutParams(lay);
+                */
+                //toolbar.setTitle(header);
+                //appBar.setBackgroundColor(getResources().getColor(R.color.endblue));
+
+                appBar.setExpanded(false);
+                recyclerView.setNestedScrollingEnabled(false);
+
+                //Set the gravity of the Collapsing Toolbar Title in the switch below
+                /*switch (result.get("Collapsed_Title_Gravity")) {
+                    case "Right" : collapsingToolbarLayout.setCollapsedTitleGravity();
+                }*/
                 profileImage.setVisibility(View.INVISIBLE);
-                //setSupportActionBar(toolbar);
+                setSupportActionBar(toolbar);
                 CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams)recyclerView.getLayoutParams();
                 layoutParams.setMargins(0,0,0,0);
                 recyclerView.setLayoutParams(layoutParams);
@@ -248,8 +229,10 @@ public class MainActivity extends AppCompatActivity {
                 Card1Data card1 = new Card1Data(text1,text2,text3,imageUrl);
                 card1Data.add(card1);
             }
-            getSupportActionBar().setTitle(header);
-            setAdapter(result.getInt("view_type"));
+            //getSupportActionBar().setTitle(header);
+            int type = result.getInt("view_type");
+            //int type = 4;
+            setAdapter(type);
         }
         else
         {
@@ -258,17 +241,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /*public void setImage(int i,String url) {
-        if(i == 1) {
-            Picasso.with(this)
-                    .load(url)
-                    .into(backImage);
-        }
-        else{
-            Picasso.with(this)
-                    .load(url)
-                    .into(profileImage);
-        }
-
-    }*/
 }

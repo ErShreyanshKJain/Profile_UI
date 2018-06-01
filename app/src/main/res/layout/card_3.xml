@@ -19,7 +19,7 @@
         <RelativeLayout
             android:id="@+id/rela_round"
             android:layout_width="400dp"
-            android:layout_height="350dp"
+            android:layout_height="200dp"
             android:layout_alignParentTop="true"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"

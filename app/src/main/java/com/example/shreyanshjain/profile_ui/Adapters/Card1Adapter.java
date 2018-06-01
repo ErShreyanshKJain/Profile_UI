@@ -25,6 +25,7 @@ public class Card1Adapter extends RecyclerView.Adapter<Card1Adapter.ViewHolder> 
     private List<Card1Data> card1Data;
     private Context context;
     private int position;
+    private boolean flag = true; // to implement background of relative layout
 
     public Card1Adapter(List<Card1Data> card1Data, Context context,int position) {
         this.card1Data = card1Data;
@@ -41,7 +42,8 @@ public class Card1Adapter extends RecyclerView.Adapter<Card1Adapter.ViewHolder> 
         holder.sub_head.setText(data.getSub());
         holder.desc.setText(data.getDesc());
 
-        /*Picasso.with(context)
+        if(flag)
+        Picasso.with(context)
                 .load(data.getImage())
                 .into(new Target() {
                     @Override
@@ -58,7 +60,7 @@ public class Card1Adapter extends RecyclerView.Adapter<Card1Adapter.ViewHolder> 
                     public void onPrepareLoad(Drawable placeHolderDrawable) {
 
                     }
-                });*/
+                });
     }
 
     @Override
@@ -73,8 +75,9 @@ public class Card1Adapter extends RecyclerView.Adapter<Card1Adapter.ViewHolder> 
         switch (position)
         {
             case 1: layout = R.layout.card_2; // Simple Text
+                    flag = false;
                     break;
-            case 2: layout = R.layout.card_1; //
+            case 2: layout = R.layout.card_1;
                     break;
             case 3: layout = R.layout.card_3;
                     break;
