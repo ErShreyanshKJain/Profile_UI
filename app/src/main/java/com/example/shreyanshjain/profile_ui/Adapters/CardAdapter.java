@@ -16,52 +16,51 @@ import android.widget.TextView;
 import com.example.shreyanshjain.profile_ui.Card1Data;
 import com.example.shreyanshjain.profile_ui.R;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.util.List;
 
-public class Card1Adapter extends RecyclerView.Adapter<Card1Adapter.ViewHolder> {
+public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
 
     private List<Card1Data> card1Data;
     private Context context;
-    //private int position;
-    //private boolean flag = true; // to implement background of relative layout
+    private int position;
+    private boolean flag = true; // to implement background of relative layout
 
-    public Card1Adapter(List<Card1Data> card1Data, Context context) {
+    public CardAdapter(List<Card1Data> card1Data, Context context,int position) {
         this.card1Data = card1Data;
         this.context = context;
-        /*this.position = position;*/
+        this.position = position;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull Card1Adapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull CardAdapter.ViewHolder holder, int position) {
 
         final Card1Data data = card1Data.get(position);
 
         holder.head.setText(data.getHeading());
         holder.sub_head.setText(data.getSub());
         holder.desc.setText(data.getDesc());
-        Picasso.with(context)
-                .load(data.getImage())
-                .into(holder.iconImage);
-        /*if(flag)
-        Picasso.with(context)
-                .load(data.getImage())
-                .into(new Target() {
-                    @Override
-                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        holder.relativeLayout.setBackground(new BitmapDrawable(bitmap));
-                    }
 
-                    @Override
-                    public void onBitmapFailed(Drawable errorDrawable) {
+        if(flag)
+            Picasso.with(context)
+                    .load(data.getImage())
+                    .into(new Target() {
+                        @Override
+                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                            holder.relativeLayout.setBackground(new BitmapDrawable(bitmap));
+                        }
 
-                    }
+                        @Override
+                        public void onBitmapFailed(Drawable errorDrawable) {
 
-                    @Override
-                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+                        }
 
-                    }
-                });*/
+                        @Override
+                        public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                        }
+                    });
     }
 
     @Override
@@ -71,24 +70,20 @@ public class Card1Adapter extends RecyclerView.Adapter<Card1Adapter.ViewHolder> 
 
     @NonNull
     @Override
-    public Card1Adapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        int layout=R.layout.card_1;
-        /*switch (position)
+    public CardAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        int layout=R.layout.card_3;
+        switch (position)
         {
             case 1: layout = R.layout.card_2; // Simple Text
-                    flag = false;
-                    break;
-            case 2: layout = R.layout.card_1;
-                    flag = true;
-                    break;
+                flag = false;
+                break;
             case 3: layout = R.layout.card_3;
-                    flag = true;
-                    break;
+                flag = true;
+                break;
             case 4: layout = R.layout.card_4;
-                    flag = true;
-                    break;
+                flag = true;
+                break;
         }
-        */
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(layout,parent,false);
         return new ViewHolder(v);
@@ -97,7 +92,7 @@ public class Card1Adapter extends RecyclerView.Adapter<Card1Adapter.ViewHolder> 
     public class ViewHolder extends RecyclerView.ViewHolder{
 
         public TextView head,sub_head,desc;
-        public AppCompatImageView iconImage;
+        public RelativeLayout relativeLayout;
 
         public ViewHolder(View itemView)
         {
@@ -106,7 +101,7 @@ public class Card1Adapter extends RecyclerView.Adapter<Card1Adapter.ViewHolder> 
             head = (TextView)itemView.findViewById(R.id.tv_recycler_item_1);
             sub_head = (TextView)itemView.findViewById(R.id.tv_recycler_item_2);
             desc = (TextView)itemView.findViewById(R.id.tv_recycler_item_3);
-            iconImage = (AppCompatImageView) itemView.findViewById(R.id.iconImage);
+            relativeLayout = (RelativeLayout)itemView.findViewById(R.id.rela_round);
         }
     }
 

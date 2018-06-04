@@ -38,6 +38,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.shreyanshjain.profile_ui.Adapters.Card1Adapter;
+import com.example.shreyanshjain.profile_ui.Adapters.CardAdapter;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -48,6 +49,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -144,11 +146,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
 
         collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolBar);
-        //collapsingToolbarLayout.setTitle("Profile UI");
-
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
+        Objects.requireNonNull(getSupportActionBar()).setTitle("Profile UI");
         getSupportActionBar().setTitle("com.cricket.au");
 //        mToolbar.setBackgroundColor(R.color.graylight);
 
@@ -157,9 +158,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(MainActivity.this);
         View headerView = navigationView.getHeaderView(0);
+
         nav_text = headerView.findViewById(R.id.nav_text);
         nav_image = headerView.findViewById(R.id.nav_image);
 
@@ -178,23 +181,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 else if(Math.abs(verticalOffset) == 0){
                     CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams)recyclerView.getLayoutParams();
-                    layoutParams.setMargins(0,80,0,0);
+                    layoutParams.setMargins(0,100,0,0);
                     recyclerView.setLayoutParams(layoutParams);
                 }
             }
         });
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        recyclerView.setHasFixedSize(true);
+        //recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        //setAdapter(0); // TO set the adapter at the first position by default
+        setAdapter(0); // TO set the adapter at the first position by default
 
     }
 
-    public void setAdapter(int position)
+    public void setAdapter()
     {
-        adapter = new Card1Adapter(card1Data, MainActivity.this, position);
+        adapter = new Card1Adapter(card1Data, MainActivity.this);
+        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }
+
+    public void setAdapter(int pos)
+    {
+        adapter = new CardAdapter(card1Data,MainActivity.this,pos);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
@@ -213,44 +223,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void getData(String jsonData) throws JSONException {
 
-        //String jsonData = result;
-        //backImage = (AppCompatImageView)findViewById(R.id.backImage);
+        //appBarLayout = (AppBarLayout)findViewById(R.id.appBarLayout);
+        backImage = (AppCompatImageView)findViewById(R.id.backImage);
         profileImage = (RoundedImage)findViewById(R.id.singleCompLogo);
-        JSONObject source = new JSONObject(jsonData);
-        int code = source.getInt("code");
+        JSONParsing jsonParsing = new JSONParsing(jsonData);
+        //JSONObject source = new JSONObject(jsonData);
+        int code = jsonParsing.getCode();                                  //source.getInt("code");
         if(code == 101)
         {// Make "result" a JSON object to fetch all other values from it
-            JSONObject result = source.getJSONObject("result");
-            String header = result.getString("top_heading");
-            int top = result.getInt("top_image");
-            //int top = 0;
+            //JSONObject result = source.getJSONObject("result");
+            //String header = result.getString("top_heading");
+            //int top = jsonParsing.getTop();                                                  //result.getInt("top_image");
+            int top = 1;
             if(top==1) {
-                String bg = result.getString("top_image_bg");
+                //String bg = result.getString("top_image_bg");
                 //setImage(1,bg);
                 Picasso.with(this)
-                        .load(bg)
-                        .into(new Target() {
-                            @Override
-                            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                                collapsingToolbarLayout.setBackground(new BitmapDrawable(bitmap));
-                            }
-
-                            @Override
-                            public void onBitmapFailed(Drawable errorDrawable) {
-
-                            }
-
-                            @Override
-                            public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                            }
-                        });                        //backImage
-                String fg = result.getString("top_image_fg");
+                        .load(jsonParsing.getBg())
+                        .into(backImage);
+                //String fg = result.getString("top_image_fg");
                 //setImage(2,fg);
                 Picasso.with(this)
-                        .load(fg)
+                        .load(jsonParsing.getFg())
                         .into(profileImage);
-                collapsingToolbarLayout.setTitle(header);
+                collapsingToolbarLayout.setTitle(jsonParsing.getHeader());
             }
             else{
                 //set collapseToolbar to toolbar or supportActionBar
@@ -265,6 +261,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 appBar.setExpanded(false);
                 recyclerView.setNestedScrollingEnabled(false);
 
+                /*appBar.setVisibility(View.INVISIBLE);
+                appBarLayout.setVisibility(View.VISIBLE);
+                */
                 //Set the gravity of the Collapsing Toolbar Title in the switch below
                 /*switch (result.get("Collapsed_Title_Gravity")) {
                     case "Right" : collapsingToolbarLayout.setCollapsedTitleGravity();
@@ -276,10 +275,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 recyclerView.setLayoutParams(layoutParams);
             }
 
-            JSONArray data = result.getJSONArray("data");
+            JSONArray data = jsonParsing.getData();                               //result.getJSONArray("data");
             for (int i = 0;i<data.length();i++)
             {
-                String temp = data.getString(i);
+                jsonParsing.setDetails(data.getString(i));
+                /*String temp = data.getString(i);
                 JSONObject jsonObject = new JSONObject(temp);
                 String text1 = jsonObject.getString("text1");
                 //Log.v("Title", title);
@@ -287,23 +287,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 //Log.v("Desc", description);
                 String text3 = jsonObject.getString("text3");
                 //Log.v("url", url);
-                String imageUrl = jsonObject.getString("image"); //Make the image circular
-                Card1Data card1 = new Card1Data(text1,text2,text3,imageUrl);
-                list.add(text1);
-                list.add(text2);
-                list.add(text3);
-                list.add(imageUrl);
+                String imageUrl = jsonObject.getString("image");*/ //Make the image circular
+                Card1Data card1 = jsonParsing.getTexts();                                          /*new Card1Data(text1,text2,text3,imageUrl);*/
                 card1Data.add(card1);
             }
             //getSupportActionBar().setTitle(header);
-            int type = result.getInt("view_type");
-            //int type = 4;
-            setAdapter(type);
+            //int type = jsonParsing.getType();                                              //result.getInt("view_type");
+            int type = 2;
+            if (type == 2)
+                setAdapter();
+            else
+                setAdapter(type);
         }
         else
         {
-            Toast.makeText(MainActivity.this,source.getString("message"),Toast.LENGTH_LONG)
-                    .show();
+            Toast.makeText(MainActivity.this,jsonParsing.getSource().getString("message"),Toast.LENGTH_LONG)
+                 .show();
         }
     }
 
