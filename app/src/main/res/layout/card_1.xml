@@ -19,13 +19,14 @@
         android:layout_height="match_parent"
         android:padding="@dimen/text_margin">
 
-        <RelativeLayout
+        <ImageView
             android:id="@+id/rela_round"
             android:layout_width="@dimen/materialize_right_side_icon_margin"
             android:layout_height="@dimen/materialize_right_side_icon_margin"
             android:layout_centerVertical="true"
             android:layout_marginRight="@dimen/text_margin"
-            android:background="@drawable/ic_account_circle_black_24dp"
+            android:src="@drawable/ic_account_circle_black_24dp"
+            android:background="@drawable/layout_bg"
             android:transitionName="shareView" />
 
         <TextView
